@@ -3,12 +3,17 @@ module ActiveRecordPostgresEarthdistance
     extend ActiveSupport::Concern
 
     module ClassMethods
-      def acts_as_geolocated(options = {})
-        cattr_accessor :latitude_column, :longitude_column, :through_table
-        self.latitude_column = options[:lat] || (column_names.include?("lat") ? "lat" : "latitude")
-        self.longitude_column = options[:lng] ||
-                                (column_names.include?("lng") ? "lng" : "longitude")
-        self.through_table = options[:through]
+      
+      def acts_as_geolocated(options = {})   
+       if table_exists?
+         cattr_accessor :latitude_column, :longitude_column, :through_table
+         self.latitude_column = options[:lat] || (column_names.include?("lat") ? "lat" : "latitude")
+         self.longitude_column = options[:lng] ||
+                                   (column_names.include?("lng") ? "lng" : "longitude")
+         self.through_table = options[:through]
+       else
+         puts "[WARNING] table #{table_name} doesn't exist, acts_as_geolocated won't work. Skip this warning if you are running db migration"
+       end
       end
 
       def within_box(radius, lat, lng)
